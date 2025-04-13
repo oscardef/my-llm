@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from my_llm.helpers import calc_loss_batch, calc_loss_loader
-from my_llm.helpers import text_to_token_ids, token_ids_to_text
-from my_llm.helpers import generate_text_simple
+from helpers import calc_loss_batch, calc_loss_loader
+from helpers import text_to_token_ids, token_ids_to_text
+from helpers import generate
 
 def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs,
                        eval_freq, eval_iter, start_context, tokenizer):
@@ -33,7 +33,7 @@ def train_model_simple(model, train_loader, val_loader, optimizer, device, num_e
                       f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
 
         # Print a sample text after each epoch
-        generate_and_print_sample(
+        generate(
             model, tokenizer, device, start_context
         )
 
@@ -49,15 +49,15 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     return train_loss, val_loss
 
 
-def generate_and_print_sample(model, tokenizer, device, start_context):
-    model.eval()
-    context_size = model.pos_emb.weight.shape[0]
-    encoded = text_to_token_ids(start_context, tokenizer).to(device)
-    with torch.no_grad():
-        token_ids = generate_text_simple(
-            model=model, idx=encoded,
-            max_new_tokens=50, context_size=context_size
-        )
-    decoded_text = token_ids_to_text(token_ids, tokenizer)
-    print(decoded_text.replace("\n", " "))  # Compact print format
-    model.train()
+# def generate_and_print_sample(model, tokenizer, device, start_context):
+#     model.eval()
+#     context_size = model.pos_emb.weight.shape[0]
+#     encoded = text_to_token_ids(start_context, tokenizer).to(device)
+#     with torch.no_grad():
+#         token_ids = generate_text_simple(
+#             model=model, idx=encoded,
+#             max_new_tokens=50, context_size=context_size
+#         )
+#     decoded_text = token_ids_to_text(token_ids, tokenizer)
+#     print(decoded_text.replace("\n", " "))  # Compact print format
+#     model.train()

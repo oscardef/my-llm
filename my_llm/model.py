@@ -96,25 +96,25 @@ class FeedForward(nn.Module):
         return self.layers(x)
     
 
-# Testing the model
-import tiktoken
-tokenizer = tiktoken.get_encoding("gpt2")
-batch = []
-txt1 = "Every effort moves you"
-txt2 = "Every day holds a"
+# # Testing the model
+# import tiktoken
+# tokenizer = tiktoken.get_encoding("gpt2")
+# batch = []
+# txt1 = "Every effort moves you"
+# txt2 = "Every day holds a"
 
-batch.append(torch.tensor(tokenizer.encode(txt1))) # Convert the text to tokens
-batch.append(torch.tensor(tokenizer.encode(txt2))) # Convert the text to tokens
-batch = torch.stack(batch, dim=0) # Stack the tensors. Meaning, combine the tensors into a single tensor
-print(batch)
+# batch.append(torch.tensor(tokenizer.encode(txt1))) # Convert the text to tokens
+# batch.append(torch.tensor(tokenizer.encode(txt2))) # Convert the text to tokens
+# batch = torch.stack(batch, dim=0) # Stack the tensors. Meaning, combine the tensors into a single tensor
+# print(batch)
 
-torch.manual_seed(123)
+# torch.manual_seed(123)
 
-from config import GPT_CONFIG_124M
+# from config import GPT_CONFIG_124M
 
-model = GPTModel(GPT_CONFIG_124M)
+# model = GPTModel(GPT_CONFIG_124M)
 
-out = model(batch)
-print("Input batch:\n", batch)
-print("\nOutput shape:", out.shape)
-print(out)
+# out = model(batch)
+# print("Input batch:\n", batch)
+# print("\nOutput shape:", out.shape)
+# print(out)
