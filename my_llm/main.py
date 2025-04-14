@@ -44,7 +44,7 @@ def interactive_prompt_loop(gpt, tokenizer, device, model_config):
         token_ids = generate(
             model=gpt,
             idx=text_to_token_ids(user_input, tokenizer).to(device),
-            max_new_tokens=25,
+            max_new_tokens=100,
             context_size=model_config["context_length"],
             top_k=50,
             temperature=1.5
