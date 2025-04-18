@@ -2,6 +2,25 @@ import torch
 import torch.nn as nn
 
 class GELU(nn.Module):
+    """
+    Gaussian Error Linear Unit (GELU) activation function.
+
+    This module implements the GELU activation function, which is defined as:
+        GELU(x) = 0.5 * x * (1 + tanh( sqrt(2/pi) * (x + 0.044715 * x^3) ))
+    The GELU activation function is used primarily in transformer-based architectures 
+    and has been shown to improve performance over traditional activation functions in 
+    some deep learning models.
+
+    Methods:
+        forward(x):
+            Applies the GELU activation function element-wise on the input tensor.
+            
+            Parameters:
+                x (Tensor): The input tensor.
+            
+            Returns:
+                Tensor: The result of applying the GELU activation function to the input tensor.
+    """
     def __init__(self):
         super().__init__()
 
@@ -13,9 +32,20 @@ class GELU(nn.Module):
     
 
 def text_to_token_ids(text, tokenizer):
-        encoded = tokenizer.encode(text, allowed_special={'<|endoftext|>'})
-        encoded_tensor = torch.tensor(encoded).unsqueeze(0) # add batch dimension
-        return encoded_tensor
+    """
+    Convert a text string into a tensor of token IDs using the provided tokenizer.
+
+    Parameters:
+        text (str): The input string to be tokenized.
+        tokenizer: An instance of a tokenizer that implements an 'encode' method. The encode method should support an
+            'allowed_special' parameter to specify which special tokens are allowed (in this case, '<|endoftext|>').
+
+    Returns:
+        torch.Tensor: A tensor containing the token IDs of the encoded text with an added batch dimension.
+    """
+    encoded = tokenizer.encode(text, allowed_special={'<|endoftext|>'})
+    encoded_tensor = torch.tensor(encoded).unsqueeze(0) # add batch dimension
+    return encoded_tensor
 
 def token_ids_to_text(token_ids, tokenizer):
     """
@@ -43,7 +73,6 @@ def generate(model, idx, max_new_tokens, context_size, temperature=0.0, top_k=No
     Returns:
         idx: Generated token IDs.
     """
-
     # For-loop is the same as before: Get logits, and only focus on last time step
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]

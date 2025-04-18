@@ -4,6 +4,32 @@ from helpers import GELU
 from attention import MultiHeadAttention
 
 class GPTModel(nn.Module):
+    """
+    GPTModel is a PyTorch implementation of a GPT-like transformer model.
+    Attributes:
+        tok_emb (nn.Embedding): Token embedding layer that maps input token indices to dense vectors.
+        pos_emb (nn.Embedding): Positional embedding layer that encodes positional information of tokens.
+        drop_emb (nn.Dropout): Dropout layer applied to the embeddings to prevent overfitting.
+        trf_blocks (nn.Sequential): A stack of Transformer blocks for processing the input sequence.
+        final_norm (LayerNorm): Layer normalization applied to the output of the transformer blocks.
+        out_head (nn.Linear): Linear layer that maps the final embeddings to logits over the vocabulary.
+    Methods:
+        __init__(cfg):
+            Initializes the GPTModel with the given configuration.
+            Args:
+                cfg (dict): A dictionary containing model configuration parameters:
+                    - "vocab_size" (int): Size of the vocabulary.
+                    - "emb_dim" (int): Dimensionality of the embeddings.
+                    - "context_length" (int): Maximum sequence length (context size).
+                    - "drop_rate" (float): Dropout rate for embeddings.
+                    - "n_layers" (int): Number of transformer blocks.
+        forward(in_idx):
+            Performs a forward pass through the model.
+            Args:
+                in_idx (torch.Tensor): Input tensor of shape [batch_size, seq_len], containing token indices.
+            Returns:
+                torch.Tensor: Logits tensor of shape [batch_size, seq_len, vocab_size], representing the model's predictions.
+    """
     def __init__(self, cfg):
         super().__init__()
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"]) # Token embedding
@@ -81,9 +107,25 @@ class LayerNorm(nn.Module):
 
 class FeedForward(nn.Module):
     """
-    A simple feed-forward network with GELU activation.
-    """
+    FeedForward is a two-layer feedforward neural network module designed to transform input
+    embeddings through a non-linear transformation. It applies a linear transformation to 
+    increase the dimensionality by a factor of 4, applies the GELU activation, and then reduces
+    the dimensionality back to the original embedding size.
 
+    Parameters:
+        cfg (dict): A configuration dictionary with the following key:
+            - "emb_dim" (int): The size of the input (and output) embeddings.
+
+    Attributes:
+        layers (nn.Sequential): A sequential container composed of:
+            - Linear layer: Transforms input from emb_dim to 4 * emb_dim.
+            - GELU activation: Applies non-linear activation.
+            - Linear layer: Transforms data from 4 * emb_dim back to emb_dim.
+
+    Methods:
+        forward(x): Applies the feedforward network to the input tensor x and returns the 
+                    transformed tensor.
+    """
     def __init__(self, cfg):
         super().__init__()
         self.layers = nn.Sequential(
@@ -94,27 +136,3 @@ class FeedForward(nn.Module):
 
     def forward(self, x):
         return self.layers(x)
-    
-
-# # Testing the model
-# import tiktoken
-# tokenizer = tiktoken.get_encoding("gpt2")
-# batch = []
-# txt1 = "Every effort moves you"
-# txt2 = "Every day holds a"
-
-# batch.append(torch.tensor(tokenizer.encode(txt1))) # Convert the text to tokens
-# batch.append(torch.tensor(tokenizer.encode(txt2))) # Convert the text to tokens
-# batch = torch.stack(batch, dim=0) # Stack the tensors. Meaning, combine the tensors into a single tensor
-# print(batch)
-
-# torch.manual_seed(123)
-
-# from config import GPT_CONFIG_124M
-
-# model = GPTModel(GPT_CONFIG_124M)
-
-# out = model(batch)
-# print("Input batch:\n", batch)
-# print("\nOutput shape:", out.shape)
-# print(out)

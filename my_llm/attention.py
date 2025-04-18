@@ -2,6 +2,37 @@ import torch
 import torch.nn as nn
 
 class MultiHeadAttention(nn.Module):
+    """
+    MultiHeadAttention implements a multi-head self-attention mechanism commonly used in transformer architectures.
+    Attributes:
+        d_out (int): Output feature dimension, which must be divisible by `num_heads`.
+        num_heads (int): Number of parallel attention heads.
+        head_dim (int): Dimensionality for each attention head (computed as d_out // num_heads).
+        W_query (torch.nn.Linear): Linear layer to project input tokens to query vectors.
+        W_key (torch.nn.Linear): Linear layer to project input tokens to key vectors.
+        W_value (torch.nn.Linear): Linear layer to project input tokens to value vectors.
+        out_proj (torch.nn.Linear): Linear layer to combine outputs from all heads.
+        dropout (torch.nn.Dropout): Dropout layer applied to the attention weights.
+        mask (torch.Tensor): Triangular causal mask to prevent attention to future tokens.
+    Parameters:
+        d_in (int): Dimensionality of the input features.
+        d_out (int): Dimensionality of the output features; must be divisible by num_heads.
+        context_length (int): Maximum allowable sequence length used for creating the causal mask.
+        dropout (float): Dropout probability applied to the attention weights.
+        num_heads (int): Number of attention heads.
+        qkv_bias (bool, optional): If True, include bias terms in the linear projections for Q, K, and V.
+    Methods:
+        forward(x: torch.Tensor) -> torch.Tensor:
+            Computes the multi-head self-attention for the input tensor.
+            The method projects the input to queries, keys, and values, reshapes them to split into
+            multiple heads, computes the scaled dot-product attention with a causal mask, and finally
+            projects the concatenated attention outputs back to the output dimension.
+            Args:
+                x (torch.Tensor): Input tensor of shape (batch_size, num_tokens, d_in).
+            Returns:
+                torch.Tensor: Output tensor of shape (batch_size, num_tokens, d_out), representing the
+                              aggregated context from all attention heads.
+    """
     def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
         super().__init__()
         assert (d_out % num_heads == 0), \
@@ -64,14 +95,3 @@ class MultiHeadAttention(nn.Module):
         context_vec = self.out_proj(context_vec) # optional projection
 
         return context_vec
-
-# torch.manual_seed(123)
-
-# batch_size, context_length, d_in = batch.shape
-# d_out = 2
-# mha = MultiHeadAttention(d_in, d_out, context_length, 0.0, num_heads=2)
-
-# context_vecs = mha(batch)
-
-# print(context_vecs)
-# print("context_vecs.shape:", context_vecs.shape)

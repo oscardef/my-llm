@@ -6,6 +6,40 @@ import numpy as np
 
 
 class GPTDatasetV1(Dataset):
+    """
+    A PyTorch Dataset for preparing language modeling data using a sliding window approach.
+
+    This dataset tokenizes the provided text and creates overlapping sequences of tokens of fixed maximum length. 
+    For each sequence, the input is a sequence of tokens and the target is the same sequence shifted by one token, 
+    which is a common setup for training autoregressive language models.
+
+    Attributes:
+        input_ids (List[torch.Tensor]): A list of torch Tensors, each representing an input sequence of token ids.
+        target_ids (List[torch.Tensor]): A list of torch Tensors, each representing the corresponding target sequence of token ids.
+
+    Methods:
+        __init__(txt: str, tokenizer, max_length: int, stride: int):
+            Initializes the dataset by tokenizing the input text and constructing overlapping sequences.
+            
+            Args:
+                txt (str): The complete text to be tokenized and split into sequences.
+                tokenizer: Tokenizer object with an `encode` method that returns token ids from the text.
+                max_length (int): The maximum length of each input sequence.
+                stride (int): The stride or step size used for the sliding window to generate overlapping sequences.
+        
+        __len__():
+            Returns the number of sequences in the dataset.
+        
+        __getitem__(idx: int):
+            Retrieves the input-target pair at the given index.
+            
+            Args:
+                idx (int): The index of the desired sequence pair.
+            
+            Returns:
+                Tuple[torch.Tensor, torch.Tensor]: A tuple where the first element is the input sequence tensor and the 
+                second element is the corresponding target sequence tensor.
+    """
     def __init__(self, txt, tokenizer, max_length, stride):
         self.input_ids = []
         self.target_ids = []
@@ -29,6 +63,24 @@ class GPTDatasetV1(Dataset):
 
 def create_dataloader_v1(txt, batch_size=4, max_length=256,
                          stride=128, shuffle=True, drop_last=True, num_workers=0):
+    """
+    Creates a DataLoader for training or evaluating a language model on a text dataset.
+
+    This function initializes a GPT-2 tokenizer using tiktoken, processes the provided text into a dataset with overlapping sequences
+    (using GPTDatasetV1), and then constructs a PyTorch DataLoader to iterate over the dataset in batches.
+
+    Parameters:
+        txt (str): The source text to build the dataset from.
+        batch_size (int, optional): Number of samples per batch. Defaults to 4.
+        max_length (int, optional): The maximum sequence length for each sample. Defaults to 256.
+        stride (int, optional): The step size between sequences allowing overlap. Defaults to 128.
+        shuffle (bool, optional): If True, shuffles the dataset at every epoch. Defaults to True.
+        drop_last (bool, optional): If True, drops the last batch if it's incomplete. Defaults to True.
+        num_workers (int, optional): Number of subprocesses to use for data loading. Defaults to 0.
+
+    Returns:
+        DataLoader: A PyTorch DataLoader object providing batches of tokenized text data.
+    """
     # Initialize the tokenizer
     tokenizer = tiktoken.get_encoding("gpt2")
 

@@ -1,8 +1,6 @@
 import torch
 import model
 from config import GPT_CONFIG_124M, model_configs
-import helpers
-import train
 import tiktoken
 import numpy as np
 from dataloader import load_weights_into_gpt
@@ -11,14 +9,27 @@ from helpers import text_to_token_ids, token_ids_to_text, generate
 
 
 def initialize_device():
-        if torch.cuda.is_available():
-            return torch.device("cuda")
-        elif torch.backends.mps.is_available():
-            return torch.device("mps")
-        else:
-            return torch.device("cpu")
+    """
+    Initialize the device for running the model.
+    Returns:
+        device: The device to run the model on (CPU or GPU).
+    """
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    else:
+        return torch.device("cpu")
 
 def initialize_model(device):
+    """
+    Initialize the GPT model with the specified configuration and load weights.
+    Args:
+        device: The device to run the model on (CPU or GPU).
+    Returns:
+        gpt: The initialized GPT model.
+        model_config: Configuration settings for the model.
+    """
     model_name = "gpt2-small (124M)"
     model_config = GPT_CONFIG_124M.copy()
     model_config.update(model_configs[model_name])
@@ -35,6 +46,14 @@ def initialize_model(device):
     return gpt, model_config
 
 def interactive_prompt_loop(gpt, tokenizer, device, model_config):
+    """
+    Interactive loop for generating text based on user prompts.
+    Args:
+        gpt: The GPT model.
+        tokenizer: The tokenizer for encoding and decoding text.
+        device: The device to run the model on (CPU or GPU).
+        model_config: Configuration settings for the model.
+    """
     while True:
         user_input = input("Enter a prompt (type 'quit' to exit): ")
         if user_input.lower() == "quit":
