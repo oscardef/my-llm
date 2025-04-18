@@ -1,11 +1,10 @@
 import torch
-import model
-from config import GPT_CONFIG_124M, model_configs
 import tiktoken
-import numpy as np
-from dataloader import load_weights_into_gpt
-from gpt_download import download_and_load_gpt2
-from helpers import text_to_token_ids, token_ids_to_text, generate
+from base_model.model import GPTModel
+from base_model.config import GPT_CONFIG_124M, model_configs
+from base_model.dataloader import load_weights_into_gpt
+from base_model.gpt_download import download_and_load_gpt2
+from base_model.helpers import text_to_token_ids, token_ids_to_text, generate
 
 
 def initialize_device():
@@ -35,7 +34,7 @@ def initialize_model(device):
     model_config.update(model_configs[model_name])
     model_config.update({"context_length": 1024, "qkv_bias": True})
     
-    gpt = model.GPTModel(model_config)
+    gpt = GPTModel(model_config)
     gpt.eval()
 
     print("Loading weights...")
@@ -71,7 +70,7 @@ def interactive_prompt_loop(gpt, tokenizer, device, model_config):
         print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 
 if __name__ == "__main__":
-    # Main execution
+    # Main execution for running pretrained model (with no finetuning)
     tokenizer = tiktoken.get_encoding("gpt2")
     device = initialize_device()
     print(f"Using {device} device.")
