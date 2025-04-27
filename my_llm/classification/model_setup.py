@@ -1,7 +1,7 @@
 import torch
-from ..base_model.model import GPTModel
-from ..base_model.dataloader import load_weights_into_gpt
-from ..base_model.gpt_download import download_and_load_gpt2
+from my_llm.base_model.model import GPTModel
+from my_llm.base_model.dataloader import load_weights_into_gpt
+from my_llm.base_model.gpt_download import download_and_load_gpt2
 
 BASE_CONFIG = {
     "vocab_size": 50257,

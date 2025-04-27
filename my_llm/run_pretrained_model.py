@@ -1,10 +1,10 @@
 import torch
 import tiktoken
-from base_model.model import GPTModel
-from base_model.config import GPT_CONFIG_124M, model_configs
-from base_model.dataloader import load_weights_into_gpt
-from base_model.gpt_download import download_and_load_gpt2
-from base_model.helpers import text_to_token_ids, token_ids_to_text, generate
+from my_llm.base_model.model import GPTModel
+from my_llm.base_model.config import GPT_CONFIG_124M, model_configs
+from my_llm.base_model.dataloader import load_weights_into_gpt
+from my_llm.base_model.gpt_download import download_and_load_gpt2
+from my_llm.base_model.helpers import text_to_token_ids, token_ids_to_text, generate
 
 
 def initialize_device():

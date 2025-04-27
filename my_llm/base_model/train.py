@@ -1,50 +1,27 @@
 import torch
 import torch.nn as nn
-from helpers import calc_loss_batch, calc_loss_loader
-from helpers import text_to_token_ids, token_ids_to_text
-from helpers import generate
+from my_llm.base_model.helpers import calc_loss_batch, calc_loss_loader
+from my_llm.base_model.helpers import generate_and_print_sample
 
 def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs,
                        eval_freq, eval_iter, start_context, tokenizer):
     """
     Trains a model using a simple training loop with periodic evaluation and text generation.
-    This function iterates over the specified number of epochs, training the model by processing batches from the train_loader.
-    It computes the loss for each batch, backpropagates to update model weights, and periodically evaluates the model on both
-    the training and validation data using the evaluate_model function. After each epoch, it generates a sample text using the generate
-    function with the provided starting context and tokenizer.
-    Parameters:
-        model: The model to be trained.
-        train_loader: Data loader that provides batches for training. Each batch should contain an input tensor and a target tensor.
-        val_loader: Data loader for the validation dataset used during evaluation.
-        optimizer: Optimizer for updating model parameters based on computed gradients.
-        device: Computational device (e.g., CPU or GPU) where the model is located.
-        num_epochs (int): Total number of training epochs.
-        eval_freq (int): Frequency (in global steps) at which evaluation is performed.
-        eval_iter: Number of iterations/batches to consider during model evaluation.
-        start_context: Initial context string used for generating sample text after each epoch.
-        tokenizer: Tokenizer used to convert tokens to text when generating sample text.
-    Returns:
-        train_losses (list): A list of training loss values recorded at each evaluation step.
-        val_losses (list): A list of validation loss values recorded at each evaluation step.
-        track_tokens_seen (list): A list tracking the cumulative number of tokens processed at each evaluation point.
     """
-    # Initialize lists to track losses and tokens seen
     train_losses, val_losses, track_tokens_seen = [], [], []
     tokens_seen, global_step = 0, -1
 
-    # Main training loop
     for epoch in range(num_epochs):
         model.train()  # Set model to training mode
-        
+
         for input_batch, target_batch in train_loader:
-            optimizer.zero_grad() # Reset loss gradients from previous batch iteration
+            optimizer.zero_grad()  # Reset loss gradients
             loss = calc_loss_batch(input_batch, target_batch, model, device)
-            loss.backward() # Calculate loss gradients
-            optimizer.step() # Update model weights using loss gradients
+            loss.backward()  # Compute gradients
+            optimizer.step()  # Update weights
             tokens_seen += input_batch.numel()
             global_step += 1
 
-            # Optional evaluation step
             if global_step % eval_freq == 0:
                 train_loss, val_loss = evaluate_model(
                     model, train_loader, val_loader, device, eval_iter)
@@ -54,10 +31,8 @@ def train_model_simple(model, train_loader, val_loader, optimizer, device, num_e
                 print(f"Ep {epoch+1} (Step {global_step:06d}): "
                       f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
 
-        # Print a sample text after each epoch
-        generate(
-            model, tokenizer, device, start_context
-        )
+        # Print sample after each epoch
+        generate_and_print_sample(model, tokenizer, device, start_context)
 
     return train_losses, val_losses, track_tokens_seen
 
