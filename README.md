@@ -458,21 +458,19 @@ Example outputs:
 > Below is an instruction that describes a task. Write a response that appropriately completes the request.
 >
 > ### Instruction:
-> List three benefits of regular exercise.
+> Rewrite the sentence using a simile.
 
 **Model Response:**
-> 1. Improves cardiovascular health by strengthening the heart and increasing circulation.
-> 2. Enhances mood and reduces symptoms of depression and anxiety.
-> 3. Boosts energy levels and promotes better sleep quality.
+> The car is as fast as a bullet.
 
 ---
 
 **Instruction:**
 > ### Instruction:
-> How does photosynthesis work?
+> Name the author of 'Pride and Prejudice'.
 
 **Model Response:**
-> Photosynthesis is a process used by plants, algae, and some bacteria to convert light energy into chemical energy. During this process, these organisms absorb sunlight, carbon dioxide from the air, and water from the soil to produce glucose (a type of sugar) and oxygen as a byproduct.
+> The author of 'Pride and Prejudice' is Jane Austen.
 
 ---
 
@@ -491,7 +489,7 @@ Result summary:
 - **Number of entries scored:** 110
 - **Average score:** ~48.21/100
 
-This high average score indicates the fine-tuned model performs well on a broad range of tasks and demonstrates strong instruction-following capability.
+This score indicates the fine-tuned model performs decently well for the fact that it can be trained simply on a laptop, however, is still weak in comparison to larger, more powerful, models.
 
 
 # Conclusion
