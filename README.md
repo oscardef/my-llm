@@ -18,6 +18,7 @@ The project combines theoretical understanding with practical implementation ski
 ---
 
 ## Table of Contents
+- [Building the GPT-2 Model from Scratch](#building-the-gpt-2-model-from-scratch-concepts-and-architecture)
 - [Repository Structure](#repository-structure)
 - [Setup Instructions](#setup-instructions)
 - [Running the Pretrained GPT-2 Model](#running-the-pretrained-gpt-2-model)
@@ -31,6 +32,128 @@ The project combines theoretical understanding with practical implementation ski
 - [License](#license)
 
 ---
+
+## Building the GPT-2 Model from Scratch: Concepts and Architecture
+
+This section outlines how a GPT-2-style large language model (LLM) is implemented from the ground up in this project. The implementation follows the architectural and conceptual guidelines laid out in Sebastian Raschka’s _Build a Large Language Model From Scratch_, with a focus on modularity, clarity, and educational value.
+
+The goal is to make it clear how each component of a transformer-based language model works, how they fit together, and how they enable text generation via autoregressive modeling.
+
+---
+
+### Step-by-Step Overview of the GPT-2 Architecture
+
+The GPT-2 model is a **decoder-only Transformer**, designed to predict the next token in a sequence given all previous tokens. Here's how it's structured and implemented:
+
+#### 1. Tokenization
+
+The first step in working with text is to convert it into numerical form:
+
+- This project uses GPT-2's Byte Pair Encoding (BPE) tokenizer via the `tiktoken` library.
+- Input text is split into subword units and mapped to integer token IDs.
+- These tokens are passed to the model for embedding.
+
+*Relevant code:* `helpers.py`, `dataloader.py`
+
+#### 2. Embedding Layer
+
+Two types of embeddings are added to each input token:
+
+- **Token Embedding:** Converts token IDs into dense vector representations.
+- **Positional Embedding:** Adds information about the position of each token in the sequence.
+
+Unlike some transformer variants, GPT-2 uses **learnable positional embeddings** (not sinusoidal).
+
+*Relevant code:* `model.py`
+
+#### 3. Stacked Transformer Decoder Blocks
+
+The model contains a stack of identical blocks, each composed of:
+
+- **Masked Multi-Head Self-Attention:**  
+  - Allows each token to attend only to previous tokens (causal masking).
+  - Attention is computed across multiple "heads" in parallel to capture different features.
+- **Feedforward Network:**  
+  - Applies two linear transformations with a non-linear activation (typically GELU) in between.
+- **Residual Connections and Layer Normalization:**  
+  - Applied after both the attention and feedforward sub-layers for better gradient flow and stability.
+
+These blocks are repeated `n_layers` times to form the full network. For GPT-2 Small, there are 12 layers; for GPT-2 Medium, 24.
+
+*Relevant code:* `attention.py`, `model.py`
+
+#### 4. Output Projection
+
+After passing through the transformer blocks:
+
+- The output is normalized and projected through a final linear layer.
+- The output dimension equals the vocabulary size.
+- A **softmax** is applied during loss calculation or inference to obtain probabilities over the next token.
+
+*Relevant code:* `model.py`
+
+#### 5. Loss Calculation (During Training)
+
+- For each token in a sequence, the model predicts the next token.
+- **Cross-entropy loss** is computed between the predicted distribution and the actual next token.
+- The model is trained to minimize this loss across the entire sequence.
+
+*Relevant code:* `helpers.py`, `train.py`
+
+---
+
+### Pretraining Objective: Autoregressive Language Modeling
+
+The model is trained using a **causal language modeling objective**:
+
+> Given a sequence of tokens:  
+> `w₁, w₂, w₃, ..., wₙ`,  
+> the model learns to predict `wᵢ` based on `w₁` through `wᵢ₋₁`.
+
+Unlike bidirectional models (like BERT), GPT-2 is strictly unidirectional - it cannot use future tokens during training or inference.
+
+This objective enables the model to generate text by sampling one token at a time and feeding it back into itself.
+
+---
+
+### Architectural Details
+
+This project supports multiple GPT-2 variants via `config.py`. Two configurations are primarily used:
+
+| Model Variant | Layers | Hidden Size | Attention Heads | Parameters |
+|---------------|--------|-------------|------------------|------------|
+| GPT-2 Small   | 12     | 768         | 12               | ~124M      |
+| GPT-2 Medium  | 24     | 1024        | 16               | ~355M      |
+
+The code allows switching between these configurations depending on the training or fine-tuning task.
+
+---
+
+### Generation Process
+
+Once trained or initialized with pretrained weights, the model can generate text:
+
+1. A user provides a prompt (e.g., "The future of AI is").
+2. The prompt is tokenized and passed into the model.
+3. The model predicts the next token, which is appended to the sequence.
+4. This process repeats iteratively until a stopping condition is met (e.g., length or special token).
+
+The output text reflects the training data and the autoregressive nature of the model - it continues the input prompt in a coherent manner.
+
+*Relevant code:* `helpers.py`, `run_pretrained_model.py`
+
+---
+
+### Why Build an LLM from Scratch?
+
+Most modern NLP workflows use pre-built models (e.g., from Hugging Face). However, implementing an LLM from the ground up has significant educational value:
+
+- It reveals how core concepts like attention, embeddings, and layer normalization interact.
+- It allows full control over model design and debugging.
+- It enables better understanding when fine-tuning or adapting models for new tasks.
+
+This foundation made it possible to later extend the base model to perform both **classification** and **instruction-following**, as described in later sections of this report.
+
 
 ## Repository Structure
 
@@ -320,7 +443,7 @@ Example results:
 
 ## 📚 Instruction Fine-Tuning (`my_llm/instruction/`)
 
-This part of the project focuses on **instruction fine-tuning** — a technique where a language model is trained to respond properly to specific tasks or prompts, similar to how models like **InstructGPT** are trained.
+This part of the project focuses on **instruction fine-tuning** - a technique where a language model is trained to respond properly to specific tasks or prompts, similar to how models like **InstructGPT** are trained.
 
 The goal is to adapt the GPT-2 model to not just complete sentences, but **follow structured instructions**.
 
