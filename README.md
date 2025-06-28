@@ -329,39 +329,61 @@ classification/
 
 ## How to Run the Fine-Tuning
 
-Make sure dependencies are installed:
+First, install the required Python packages:
 
 ```bash
 pip install torch tiktoken numpy pandas matplotlib tqdm
 ```
 
-Then run:
+Then launch the classifier:
 
 ```bash
 python -m my_llm.classification.run_classification_model
 ```
 
-The script will:
-- Download and process the SMS Spam Collection dataset.
-- Load the pretrained GPT-2 (124M) model and add a classification head.
-- Either:
-  - Load a previously fine-tuned model (if available), or
-  - Fine-tune the model from scratch and save it.
+What happens under the hood:
 
-Plots for **loss** and **accuracy** will be saved automatically under:
+* **Data preparation & tokenization**
+  Downloads and processes the SMS Spam Collection dataset.
+* **Model loading & training**
+
+  * If a checkpoint exists at `my_llm/classification/review_classifier.pth`, it will be loaded.
+  * Otherwise, the script fine-tunes a GPT-2 (124M) backbone on the spam data, saves the model to `review_classifier.pth`, and writes plots to `my_llm/classification/plots/`.
+* **Interactive prompt**
+  Once the model is ready, you’ll see:
+
+  ```
+  Model ready on mps.  Type a review to classify it, or 'quit' to exit.
+  ```
+
+  Enter any text, and the classifier will reply instantly.
+
+### Example session
 
 ```
-my-llm/classification/plots/
+Review> Hey, just wanted to check if we're still on for dinner tonight? Let me know!
+→ Predicted label: not spam
+
+Review> You are a winner you have been specially selected to receive $1000 cash or a $2000 award.
+→ Predicted label: spam
+
+Review> quit
+Exiting classifier.
 ```
 
-Saved files include:
-- `loss_plot.pdf`
-- `accuracy_plot.pdf`
+---
 
-The fine-tuned model is saved as:
+**Saved model checkpoint:**
 
 ```
-my-llm/classification/review_classifier.pth
+my_llm/classification/review_classifier.pth
+```
+
+**Saved metric plots:**
+
+```
+my_llm/classification/plots/loss_plot.pdf
+my_llm/classification/plots/accuracy_plot.pdf
 ```
 
 ---
