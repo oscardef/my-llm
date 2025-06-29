@@ -4,6 +4,7 @@ import time
 import json
 import re
 from pathlib import Path
+from torch import tensor
 
 from my_llm.instruction.data import download_and_load_file, split_dataset, format_input
 from my_llm.instruction.dataloader import create_dataloaders
@@ -11,6 +12,7 @@ from my_llm.instruction.model_setup import setup_model
 from my_llm.instruction.training import train_instruction_model
 from my_llm.instruction.ollama_evaluation import check_if_running, generate_model_scores
 from my_llm.base_model.helpers import generate, text_to_token_ids, token_ids_to_text
+from my_llm.classification.plotting import plot_losses
 
 MODEL_SAVE_PATH = Path("gpt2-medium355M-sft.pth")
 LOAD_EXISTING_MODEL = True  # <-- Set to True to load model without retraining
@@ -74,6 +76,16 @@ if __name__ == "__main__":
         # Save model
         torch.save(model.state_dict(), MODEL_SAVE_PATH)
         print(f"Model saved as {MODEL_SAVE_PATH}")
+
+        # Plot losses
+        epochs_seen = tensor(range(1, len(train_losses) + 1))
+        plot_losses(
+            epochs_seen=epochs_seen,
+            tokens_seen=tensor(tokens_seen),
+            train_losses=train_losses,
+            val_losses=val_losses,
+            save_path=Path(__file__).parent / "plots" / "loss_plot.png"
+        )
 
 
 
