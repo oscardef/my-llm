@@ -16,3 +16,4 @@ gpt2/355M/model.ckpt.meta
 *.pyc
 *.pth
 *.pyc
+.DS_Store
